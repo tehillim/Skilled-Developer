@@ -1,0 +1,45 @@
+# CLAUDE.md 템플릿
+
+이 파일을 프로젝트 루트에 `CLAUDE.md`로 복사한 뒤 프로젝트에 맞게 채워 넣으세요.
+Claude Code는 세션 시작 시 이 파일을 자동으로 읽습니다.
+
+---
+
+# 프로젝트 이름
+
+한두 문단으로 프로젝트가 무엇을 하는지 설명합니다.
+누가 사용하고, 핵심 기능이 무엇인지 적으세요.
+
+## 자주 쓰는 명령어
+
+```bash
+npm install        # 의존성 설치
+npm test           # 전체 테스트 실행
+npm run test:unit  # 단위 테스트만
+npm run lint       # 린트 검사
+npm run dev        # 로컬 개발 서버 실행
+```
+
+## 디렉터리 구조
+
+```
+src/
+  api/        # HTTP 핸들러 — 비즈니스 로직 금지, service 호출만
+  services/   # 비즈니스 로직
+  models/     # DB 모델과 마이그레이션
+  utils/      # 공용 유틸리티
+tests/        # src/ 구조를 미러링
+```
+
+## 코딩 컨벤션
+
+- 함수/변수는 camelCase, 타입/클래스는 PascalCase
+- 에러는 `AppError` 서브클래스로 던지고, 핸들러 레이어에서만 catch
+- 새 기능에는 반드시 테스트를 함께 작성
+- 주석은 "왜"를 설명할 때만 작성
+
+## 주의사항
+
+- `src/legacy/`는 마이그레이션 진행 중 — 새 코드 추가 금지
+- DB 마이그레이션은 반드시 별도 PR로 분리
+- `config/production.ts`는 배포 파이프라인이 관리하므로 수정하지 말 것
