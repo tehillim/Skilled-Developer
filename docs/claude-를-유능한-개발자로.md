@@ -66,6 +66,37 @@ Claude는 코드를 **실행하고 확인할 수 있을 때** 훨씬 유능해�
 - **스킬** (`.claude/skills/`): 반복되는 절차(배포, 릴리스 노트 작성, 리뷰 체크리스트)를 스킬로 만들어 두면 팀의 방식대로 일관되게 수행합니다.
 - **서브에이전트/훅**: 큰 작업의 병렬화, 자동 포매팅 같은 자동화를 구성할 수 있습니다.
 
+### 예시: 권한 설정
+
+`.claude/settings.json`에 자주 쓰는 안전한 명령을 미리 허용해 두면 매번 확인 절차 없이 막힘없이 작업할 수 있습니다.
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)"
+    ]
+  }
+}
+```
+
+### 예시: SessionStart 훅
+
+새 세션이 시작될 때 의존성 설치나 헬스체크를 자동으로 실행하고 싶다면 `SessionStart` 훅을 등록하세요. 원격/웹 세션에서 특히 유용합니다.
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "npm install" }] }
+    ]
+  }
+}
+```
+
 ## 5. 좋은 협업 방식
 
 같은 능력의 개발자도 요구사항이 명확할 때 훨씬 좋은 결과를 냅니다.
