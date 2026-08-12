@@ -59,6 +59,30 @@ Claude는 코드를 **실행하고 확인할 수 있을 때** 훨씬 유능해�
 
 포인트는 **Claude가 이 도구들을 직접 실행할 수 있어야 한다**는 것입니다. 테스트가 있어도 실행법이 문서에 없으면 무용지물입니다.
 
+### 예시: CI 워크플로우
+
+PR마다 테스트와 린트가 자동으로 돌아가면, Claude가 로컬에서 놓친 문제를 CI가 잡아 주고 Claude는 그 결과를 보고 스스로 수정할 수 있습니다.
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+```
+
+핵심은 **로컬에서 쓰는 것과 동일한 명령(`npm run lint`, `npm test`)을 CI에서도 그대로 실행**하는 것입니다. 명령이 다르면 "로컬에서는 됐는데 CI에서만 실패"하는 상황이 반복됩니다.
+
 ## 4. 적절한 권한과 도구
 
 - **권한 설정** (`.claude/settings.json`): 자주 쓰는 안전한 명령(테스트, 린트, 읽기 계열)을 미리 허용해 두면 매번 확인을 거치지 않고 막힘없이 일합니다.
