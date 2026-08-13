@@ -46,6 +46,27 @@ Claude는 코드를 **실행하고 확인할 수 있을 때** 훨씬 유능해�
 - **환경 변수와 시크릿**은 `.env.example`로 어떤 값이 필요한지 알려 주세요. 실제 값 없이도 테스트가 돌아가면 이상적입니다.
 - **원격/웹 세션이라면** SessionStart 훅으로 의존성 설치를 자동화할 수 있습니다.
 
+### 예시: 셋업 스크립트
+
+의존성 설치, `.env` 준비, 헬스체크를 한 스크립트로 묶어 두면 Claude가 매번 "무엇부터 실행해야 하는지" 추측하지 않아도 됩니다. `CLAUDE.md`에는 "환경 설정은 `./scripts/setup.sh` 하나로 끝납니다"라고만 적어 두면 충분합니다.
+
+```bash
+#!/usr/bin/env bash
+# scripts/setup.sh
+set -euo pipefail
+
+echo "Installing dependencies..."
+npm ci
+
+if [ ! -f .env ]; then
+  echo "Creating .env from .env.example"
+  cp .env.example .env
+fi
+
+echo "Running healthcheck..."
+npm run typecheck
+```
+
 ## 3. 빠른 피드백 루프
 
 유능한 개발자는 자기 코드가 틀렸는지 스스로 알아챕니다. Claude에게 그 감각을 주는 것이 자동화된 검증입니다.
