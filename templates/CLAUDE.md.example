@@ -31,6 +31,15 @@ src/
 tests/        # src/ 구조를 미러링
 ```
 
+## 환경 설정
+
+```bash
+./scripts/setup.sh   # 의존성 설치 + .env 생성 + 헬스체크까지 한 번에
+```
+
+- 필요한 환경 변수는 `.env.example`을 참고하세요. 실제 시크릿 값 없이도 테스트는 동작합니다.
+- 셋업이 실패하면 Node 버전을 확인하세요 (`.nvmrc` 기준).
+
 ## 코딩 컨벤션
 
 - 함수/변수는 camelCase, 타입/클래스는 PascalCase
