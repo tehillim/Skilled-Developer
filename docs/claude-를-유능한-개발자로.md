@@ -1,5 +1,7 @@
 # Claude를 유능한 개발자로 만들기 위해 필요한 것
 
+> English version: [What It Takes to Make Claude a Skilled Developer](en/making-claude-a-skilled-developer.md)
+
 AI 코딩 에이전트(Claude)는 그 자체로 코드를 잘 작성하지만, **실제로 유능한 개발자처럼 일하게 만드는 것은 주변 환경과 협업 방식**입니다. 유능한 신입 개발자가 합류했을 때 온보딩이 필요하듯, Claude에게도 같은 것이 필요합니다.
 
 핵심은 여섯 가지입니다.
