@@ -1,5 +1,7 @@
 # CLAUDE.md 템플릿
 
+> English version: [templates/en/CLAUDE.md.example](en/CLAUDE.md.example)
+
 이 파일을 프로젝트 루트에 `CLAUDE.md`로 복사한 뒤 프로젝트에 맞게 채워 넣으세요.
 Claude Code는 세션 시작 시 이 파일을 자동으로 읽습니다.
 

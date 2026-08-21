@@ -9,3 +9,4 @@ A repository on what it takes to make an AI coding agent (Claude) work like a sk
 - **[Claude를 유능한 개발자로 만들기 위해 필요한 것](docs/claude-를-유능한-개발자로.md)** — 컨텍스트, 개발 환경, 피드백 루프, 권한과 도구, 협업 방식, 지속적 개선의 6가지 축과 실천 체크리스트
   - English: [What It Takes to Make Claude a Skilled Developer](docs/en/making-claude-a-skilled-developer.md)
 - **[CLAUDE.md 템플릿](templates/CLAUDE.md.example)** — 프로젝트에 바로 복사해 쓸 수 있는 온보딩 문서 템플릿
+  - English: [CLAUDE.md Template](templates/en/CLAUDE.md.example)

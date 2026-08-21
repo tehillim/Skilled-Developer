@@ -1,0 +1,56 @@
+# CLAUDE.md Template
+
+> 한국어 버전: [templates/CLAUDE.md.example](../CLAUDE.md.example)
+
+Copy this file to your project root as `CLAUDE.md` and fill it in for your project.
+Claude Code reads this file automatically at the start of each session.
+
+---
+
+# Project Name
+
+Explain in one or two paragraphs what the project does.
+Say who uses it and what its core features are.
+
+## Common Commands
+
+```bash
+npm install        # Install dependencies
+npm test           # Run the full test suite
+npm run test:unit  # Unit tests only
+npm run lint       # Lint check
+npm run dev        # Run the local dev server
+```
+
+## Directory Structure
+
+```
+src/
+  api/        # HTTP handlers — no business logic, only service calls
+  services/   # Business logic
+  models/     # DB models and migrations
+  utils/      # Shared utilities
+tests/        # Mirrors the src/ structure
+```
+
+## Environment Setup
+
+```bash
+./scripts/setup.sh   # Installs dependencies + creates .env + runs a health check, all in one
+```
+
+- See `.env.example` for the required environment variables. Tests run without real secret values.
+- If setup fails, check your Node version (against `.nvmrc`).
+
+## Coding Conventions
+
+- camelCase for functions/variables, PascalCase for types/classes
+- Throw errors as `AppError` subclasses; catch only in the handler layer
+- Every new feature must ship with tests
+- Write comments only to explain the "why"
+
+## Caveats
+
+- `src/legacy/` is mid-migration — do not add new code there
+- DB migrations must always go in a separate PR
+- Do not edit `config/production.ts`; it is managed by the deploy pipeline
