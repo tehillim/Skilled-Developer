@@ -171,6 +171,28 @@ description: Drafts release notes from recently merged PRs. Use for requests lik
 4. Ask the user for review, and commit after approval.
 ```
 
+### Example: subagent
+
+Roles that can be delegated independently — review, exploration — can be defined as markdown files under `.claude/agents/`, and Claude will hand that work to a subagent with its own separate context. The benefits: the main task's context stays clean, and you can restrict the subagent to only the tools its role needs.
+
+```markdown
+---
+name: code-reviewer
+description: Reviews code changes. Use before creating a commit or PR.
+tools: Read, Grep, Glob
+---
+
+Review the changed code and check the following.
+
+1. Potential bugs — boundary conditions, missing error handling
+2. Convention violations — against the rules in CLAUDE.md
+3. Missing tests — is new behavior covered by tests?
+
+Report the issues you find, ordered by severity. Do not modify the code yourself.
+```
+
+Giving a review-only subagent nothing but read tools structurally prevents it from "fixing" code mid-review.
+
 ## 5. Good Collaboration Practices
 
 Developers of equal skill produce far better results when requirements are clear.
