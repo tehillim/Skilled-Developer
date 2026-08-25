@@ -214,6 +214,16 @@ The same bug fix can land very differently depending on the request. Instead of 
 
 Passing along the symptom, expected behavior, and suspected cause or relevant files makes it much more likely that Claude finds and fixes the verified cause instead of guessing.
 
+### Example: scoping work into units
+
+Asking for "add filtering, sorting, and CSV export to the order list" all at once produces a PR touching dozens of files — hard to review, and hard to pinpoint when something breaks. Split it by purpose and request the pieces in order.
+
+1. **PR 1** — add filter/sort parameters to the query API (+ tests)
+2. **PR 2** — wire up the filter/sort UI on the frontend
+3. **PR 3** — add CSV export
+
+Each PR can be reviewed and shipped independently, and if something goes wrong, only that PR needs to be reverted. It also lets you give Claude a clear boundary — "only do step 1 for now" — which prevents unintended changes from sneaking in alongside the intended ones.
+
 ## 6. Continuous Improvement
 
 Onboarding is not a one-time event. Competence comes from accumulation.
