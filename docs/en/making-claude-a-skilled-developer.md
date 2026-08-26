@@ -214,6 +214,25 @@ The same bug fix can land very differently depending on the request. Instead of 
 
 Passing along the symptom, expected behavior, and suspected cause or relevant files makes it much more likely that Claude finds and fixes the verified cause instead of guessing.
 
+### Example: reviewing a plan first in plan mode
+
+For design-heavy work that touches multiple files, don't jump straight into implementation — use plan mode (`Shift+Tab`) to get a plan first. In this mode Claude only investigates, without modifying code, and then presents an implementation plan.
+
+```text
+> (plan mode) Add an order-cancellation feature, including payment refund integration.
+
+Claude's plan:
+1. Add cancelOrder() to src/services/orders.ts — with status validation
+2. Reuse refund() from src/services/payments.ts (no new implementation)
+3. Cancellable-status rule: allow only PAID and PREPARING
+4. Tests: 1 success case + 2 non-cancellable-status cases
+
+> On #3: PREPARING involves partial refunds and needs a policy decision.
+> Proceed with PAID only for now.
+```
+
+Correcting direction before implementation starts costs almost nothing — a very different story from saying "actually, that's not what I meant" after dozens of files have changed.
+
 ### Example: scoping work into units
 
 Asking for "add filtering, sorting, and CSV export to the order list" all at once produces a PR touching dozens of files — hard to review, and hard to pinpoint when something breaks. Split it by purpose and request the pieces in order.
