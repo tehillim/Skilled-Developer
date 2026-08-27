@@ -264,6 +264,21 @@ When Claude repeats a mistake, add one line to CLAUDE.md right then. Recording t
 
 The cost of adding one line is small, but the benefit of never repeating the same correction compounds across every future session.
 
+### Example: updating docs in the same PR as the code
+
+When a PR that changes structure also carries the doc update, the docs never get a chance to go stale. For example, a PR that moves a REST handler to a GraphQL resolver should have a file list like this:
+
+```text
+PR: Migrate order queries to GraphQL
+
+  src/api/orders.ts          (deleted)
+  src/graphql/orders.ts      (added)
+  tests/graphql/orders.ts    (added)
+  CLAUDE.md                  (modified) ← now says "query APIs are written as resolvers in src/graphql/"
+```
+
+Reviewers only need one checklist item: "did the docs change too?" Deferring doc updates to a separate task means they are usually forgotten — and the next session's Claude reads the stale doc and tries to add code to the deleted `src/api/`.
+
 ---
 
 ## Checklist
