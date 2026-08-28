@@ -141,6 +141,23 @@ Pre-allowing safe, frequent commands in `.claude/settings.json` removes the conf
 }
 ```
 
+### Example: connecting an MCP server
+
+Committing a `.mcp.json` at the repository root lets the whole team share the same external-system integrations. With the GitHub MCP server connected, for example, a single request like "read issue #123, fix it, and open a PR" can cover everything from reading the issue to creating the PR.
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}
+```
+
+For servers that require authentication, pass tokens via environment variables instead of writing them into the config file. Record the required variable names in `.env.example` (see section 2) so teammates can connect the same way.
+
 ### Example: SessionStart hook
 
 To automatically install dependencies or run a health check when a new session starts, register a `SessionStart` hook. Especially useful for remote/web sessions.
