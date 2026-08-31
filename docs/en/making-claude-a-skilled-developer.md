@@ -260,6 +260,17 @@ Asking for "add filtering, sorting, and CSV export to the order list" all at onc
 
 Each PR can be reviewed and shipped independently, and if something goes wrong, only that PR needs to be reverted. It also lets you give Claude a clear boundary — "only do step 1 for now" — which prevents unintended changes from sneaking in alongside the intended ones.
 
+### Example: turning failure into useful feedback
+
+When the result isn't what you expected, saying only "it doesn't work" forces Claude to guess at the cause all over again. Instead, share what you ran, what you expected, and what actually happened.
+
+| Bad | Good |
+|---|---|
+| "You said you fixed it, it's still broken" | "I ran `npm test` and the 'account lockout' case in `login.test.ts` still fails. Here's the error: `Expected status LOCKED, received ACTIVE`" |
+| "I don't like this approach" | "You implemented retries as an infinite loop, but our policy is to retry at most 3 times on external API failures and then alert. See the 'external integrations' rule in `CLAUDE.md`." |
+
+Give Claude **verifiable facts** — the error message, the failing test name, the policy that was violated — and it can start fixing from exactly that point instead of guessing. And if the same failure keeps recurring, that feedback is a candidate for a rule in CLAUDE.md (see section 6).
+
 ## 6. Continuous Improvement
 
 Onboarding is not a one-time event. Competence comes from accumulation.
