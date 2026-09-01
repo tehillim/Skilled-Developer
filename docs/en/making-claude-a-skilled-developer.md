@@ -50,6 +50,22 @@ The same item can be actionable or useless depending on how specifically it is w
 
 Words like "complex" and "thorough" are vague even for humans. Concrete file paths, reasons, and verification steps are what let Claude act on them.
 
+### Example: glossary
+
+When domain terms and code names differ, Claude searches the wrong places or invents new names. Even a short mapping table keeps code navigation and naming consistent.
+
+```markdown
+## Glossary
+
+| Domain term | Code name | Notes |
+|---|---|---|
+| Partner store | `Merchant` | The UI says "store", but code uses only Merchant |
+| Settlement | `Settlement` | `Payout` is the legacy name — do not use in new code |
+| Order confirmation | `OrderConfirmation` | Distinct from payment completion (`PaymentCompleted`) |
+```
+
+Given a request like "fix the settlement logic", a glossary sends Claude to `Settlement` rather than the legacy `Payout`, and new code keeps using the names the team actually uses.
+
 ## 2. A Verifiable Development Environment
 
 Claude is far more capable when it can **run the code and check the result**. Code written by guessing and code verified by execution differ greatly in quality.
