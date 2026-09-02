@@ -96,6 +96,25 @@ echo "Running healthcheck..."
 npm run typecheck
 ```
 
+### Example: .env.example
+
+Don't just list variable names — use comments to say what each value is, where to get it, and what happens if it is left empty. That lets Claude understand what configuration is needed without any real secrets, and tell environment problems apart from code problems.
+
+```bash
+# .env.example — never commit real values; put them only in .env
+
+# Local development DB. scripts/setup.sh starts it via Docker
+DATABASE_URL=postgres://localhost:5432/myapp_dev
+
+# Payment gateway sandbox key — issued on the team wiki's "Secrets" page
+PAYMENT_API_KEY=
+
+# If empty, notifications fall back to console output (tests pass without it)
+SLACK_WEBHOOK_URL=
+```
+
+When the file even says "which tests fail without this key", Claude running in an environment without secrets can report the cause accurately instead of misattributing the failure to the code.
+
 ## 3. A Fast Feedback Loop
 
 A skilled developer notices on their own when their code is wrong. Automated verification is what gives Claude that sense.
