@@ -152,6 +152,21 @@ jobs:
 
 The key is to **run the exact same commands in CI that you use locally** (`npm run lint`, `npm test`). If they differ, you get endless "works locally, fails only in CI" situations.
 
+### Example: partial test runs when the full suite is slow
+
+If the full suite takes 10 minutes, Claude either waits 10 minutes per edit-verify cycle or skips verification and proceeds on guesswork. Document in CLAUDE.md how to quickly run just one file or one case.
+
+```markdown
+## Running tests
+
+- Full suite: `npm test` (~10 min — right before committing only)
+- One file: `npx jest tests/api/orders.test.ts`
+- One case: `npx jest -t "order cancellation"`
+- Type check only: `npm run typecheck` (seconds — first check right after an edit)
+```
+
+When the feedback loop shrinks to seconds, Claude verifies as it goes, after every change. The shorter the verification cycle, the sooner it can turn back before going far in the wrong direction.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.
