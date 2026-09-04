@@ -66,6 +66,31 @@ When domain terms and code names differ, Claude searches the wrong places or inv
 
 Given a request like "fix the settlement logic", a glossary sends Claude to `Settlement` rather than the legacy `Payout`, and new code keeps using the names the team actually uses.
 
+### Example: ADR (architecture decision record)
+
+Code records the "what" but not the "why". When the reasoning behind a structure isn't written down, Claude may re-propose an approach the team already considered and rejected, calling it an "improvement". One short file per decision is enough.
+
+```markdown
+# ADR-007: Publish order events via an outbox table, not directly to the queue
+
+## Status
+Accepted (2025-03)
+
+## Context
+Order creation and event publishing span different systems;
+when the queue was down, orders were created but events were lost.
+
+## Decision
+Write events to an outbox table inside the same DB transaction,
+and let a separate relay forward them to the queue.
+
+## Consequences
+- Orders and events are atomic; publishing may lag by a few seconds
+- Calling the queue client directly from `src/orders/` is forbidden
+```
+
+With this file in `docs/adr/`, Claude follows the outbox pattern instead of suggesting "just publish straight to the queue — it's simpler", and can flag code that violates the decision.
+
 ## 2. A Verifiable Development Environment
 
 Claude is far more capable when it can **run the code and check the result**. Code written by guessing and code verified by execution differ greatly in quality.
