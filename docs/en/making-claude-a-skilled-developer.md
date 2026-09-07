@@ -247,6 +247,30 @@ To automatically install dependencies or run a health check when a new session s
 }
 ```
 
+### Example: auto-formatting hook
+
+To run your formatter automatically every time a file is modified, register a `PostToolUse` hook. No more asking for formatting each time, and no more CI failures over style differences alone.
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The key point is that hooks run **always**, independent of Claude's judgment. Writing "please run the formatter" in CLAUDE.md is a request; wiring it as a hook makes it a rule. If the linter/formatter in chapter 3 "delegates style debates to a machine", a hook automates even running that machine.
+
 ### Example: skill
 
 For procedures you find yourself explaining in the same order every time — deploys, release notes — create a markdown file under `.claude/skills/`, and Claude will load it on its own when needed and follow your team's process.
