@@ -359,6 +359,22 @@ Asking for "add filtering, sorting, and CSV export to the order list" all at onc
 
 Each PR can be reviewed and shipped independently, and if something goes wrong, only that PR needs to be reverted. It also lets you give Claude a clear boundary — "only do step 1 for now" — which prevents unintended changes from sneaking in alongside the intended ones.
 
+### Example: letting Claude address review comments itself
+
+Review Claude's PRs by the same standard as a teammate's code — but the follow-up work can go back to Claude. Review comments follow the same principle as requests above: the more specific the location and the reason, the more accurate the fix.
+
+```text
+Review comment:
+> src/services/orders.ts line 87 — cancelOrder() returns 200 even on
+> failure. Per our API rules, domain errors must return 409 with an
+> error code. (See docs/api-conventions.md)
+
+To Claude:
+> Address the review comments on PR #142.
+```
+
+When a comment carries the file location, the violated rule, and a reference doc, Claude finds the exact spot, fixes it to match the rule, and commits. Conversely, a comment like "the error handling seems off" needs a follow-up question — from Claude just as it would from a human developer. When the reviewer keeps the approval decision but delegates the mechanical follow-up, review round-trips get cheaper without lowering the review bar.
+
 ### Example: turning failure into useful feedback
 
 When the result isn't what you expected, saying only "it doesn't work" forces Claude to guess at the cause all over again. Instead, share what you ran, what you expected, and what actually happened.
