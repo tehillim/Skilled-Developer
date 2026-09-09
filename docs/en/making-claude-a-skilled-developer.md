@@ -39,6 +39,39 @@ The fastest way is to generate a draft with the `/init` command and refine it.
 
 > Principle: "Could a newly hired senior developer open their first PR from the docs alone?" If yes, Claude can work well too.
 
+### Example: a minimal CLAUDE.md
+
+Aiming for a complete document delays getting started. Something this size is enough for a first version — fill in the gaps as later sessions reveal them (see section 6).
+
+```markdown
+# MyApp
+
+Commerce backend handling orders/payments. Node.js 20 + TypeScript + PostgreSQL.
+
+## Commands
+
+- Dev server: `npm run dev`
+- Tests: `npm test` / type check: `npm run typecheck`
+- Environment setup: `./scripts/setup.sh` does it all
+
+## Structure
+
+- `src/api/` — HTTP handlers (keep thin, no business logic)
+- `src/services/` — business logic
+- `src/db/` — schema and migrations
+
+## Conventions
+
+- Return a `Result` type instead of throwing errors
+- Amounts are always integer KRW — use only the `Money` type
+
+## Caveats
+
+- Do not modify `src/legacy/` (slated for replacement, no tests)
+```
+
+Even at one line per item, spelling out what to run, where to look, and what to avoid dramatically cuts the exploration time and wrong guesses at the start of a session.
+
 ### Example: vague vs. specific descriptions
 
 The same item can be actionable or useless depending on how specifically it is written.
