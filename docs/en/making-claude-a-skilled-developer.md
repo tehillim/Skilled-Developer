@@ -173,6 +173,27 @@ SLACK_WEBHOOK_URL=
 
 When the file even says "which tests fail without this key", Claude running in an environment without secrets can report the cause accurately instead of misattributing the failure to the code.
 
+### Example: run external dependencies with Docker
+
+If tests need a DB or Redis that isn't present in the environment, Claude ends up skipping them or substituting mocks and moving on. Define external dependencies in a `docker-compose.yml` and the real tests run with the same command in any environment.
+
+```yaml
+# docker-compose.yml — external dependencies needed by tests
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: myapp_dev
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+```
+
+In CLAUDE.md, one line is enough: "Run `docker compose up -d` before testing" — and if you fold it into the setup script (example above), even that line becomes unnecessary. Since dependency versions are pinned in the file, "works on my machine" environment differences disappear too.
+
 ## 3. A Fast Feedback Loop
 
 A skilled developer notices on their own when their code is wrong. Automated verification is what gives Claude that sense.
