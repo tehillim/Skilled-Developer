@@ -246,6 +246,26 @@ If the full suite takes 10 minutes, Claude either waits 10 minutes per edit-veri
 
 When the feedback loop shrinks to seconds, Claude verifies as it goes, after every change. The shorter the verification cycle, the sooner it can turn back before going far in the wrong direction.
 
+### Example: enforcing conventions as lint rules
+
+A rule written in CLAUDE.md is a promise Claude reads and follows; a rule you can express as a lint rule becomes one a machine verifies. For example, "no imports from `src/legacy/` in new code" can be enforced with ESLint.
+
+```json
+// .eslintrc.json
+{
+  "rules": {
+    "no-restricted-imports": ["error", {
+      "patterns": [{
+        "group": ["**/legacy/*"],
+        "message": "src/legacy/ is being replaced. Use the new implementation in src/services/."
+      }]
+    }]
+  }
+}
+```
+
+A documented rule can be forgotten, but a lint rule surfaces as an error message the moment it is violated — and Claude sees that message and fixes the code itself. Put the alternative in the `message`, and "what is banned" and "what to use instead" arrive together. Not every convention can move into lint, but each one that can makes CLAUDE.md that much shorter and the rule that much more certain.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.
