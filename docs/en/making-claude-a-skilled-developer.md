@@ -496,6 +496,28 @@ PR: Migrate order queries to GraphQL
 
 Reviewers only need one checklist item: "did the docs change too?" Deferring doc updates to a separate task means they are usually forgotten — and the next session's Claude reads the stale doc and tries to add code to the deleted `src/api/`.
 
+### Example: putting CLAUDE.md on a diet — pruning stale rules
+
+As rules accumulate, CLAUDE.md only ever grows. But the longer the document, the more the rules that really matter get buried under the ones that matter less — and a single rule that is no longer true erodes trust in the whole document. About once a quarter, ask three questions of each rule.
+
+```text
+For each rule:
+
+1. Is it still true?
+   → "never modify src/legacy/" — if legacy is already deleted,
+     delete the rule too
+
+2. Can a machine enforce it?
+   → "import order: stdlib → external → internal" — move it into
+     a lint rule (see chapter 3) and remove it from the doc
+
+3. Has this rule actually helped in the last 3 months?
+   → If not, it is either too obvious or its moment has passed —
+     a candidate for deletion
+```
+
+You can even delegate the cleanup itself to Claude — ask "verify that each rule in CLAUDE.md still matches the current codebase," and it will find rules pointing at deleted directories or rules already enforced by lint, and report them as pruning candidates. When the accumulation from chapter 6 (adding) and the pruning in this example (removing) run together, CLAUDE.md is maintained by density, not length.
+
 ---
 
 ## Checklist
