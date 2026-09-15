@@ -290,6 +290,25 @@ Pre-allowing safe, frequent commands in `.claude/settings.json` removes the conf
 }
 ```
 
+### Example: blocking dangerous commands with deny
+
+If `allow` is the list of commands that don't need a prompt every time, `deny` is the list of commands that won't be permitted even when asked. Block reads of secret files and hard-to-undo commands up front.
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)",
+      "Bash(git push --force:*)",
+      "Bash(rm -rf:*)"
+    ]
+  }
+}
+```
+
+`deny` takes precedence over `allow`, so the block holds even when a command accidentally matches a broad allow pattern. If review (section 5) is the safety net where a person checks the output, `deny` is the safety net that keeps dangerous things from happening in the first place — putting a hard-to-undo command on the list up front is cheaper than writing a rule after the incident.
+
 ### Example: connecting an MCP server
 
 Committing a `.mcp.json` at the repository root lets the whole team share the same external-system integrations. With the GitHub MCP server connected, for example, a single request like "read issue #123, fix it, and open a PR" can cover everything from reading the issue to creating the PR.
