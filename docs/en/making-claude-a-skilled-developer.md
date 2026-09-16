@@ -452,6 +452,28 @@ Asking for "add filtering, sorting, and CSV export to the order list" all at onc
 
 Each PR can be reviewed and shipped independently, and if something goes wrong, only that PR needs to be reverted. It also lets you give Claude a clear boundary — "only do step 1 for now" — which prevents unintended changes from sneaking in alongside the intended ones.
 
+### Example: writing issues Claude can pick up as-is
+
+For "handle issue #123" to work as a request, the issue itself has to be a good request. An issue that carries reproduction steps, expected behavior, and completion criteria becomes a work order that can be executed as-is, without a conversation to fill in the gaps.
+
+```markdown
+## Bug: stock is not restored after an order is canceled
+
+**Steps to reproduce**
+1. Order product A (stock 10 → 9)
+2. Cancel the order
+3. Stock is still 9 (expected: 10)
+
+**Expected behavior**
+On cancellation, stock should be restored to the pre-order quantity
+
+**Completion criteria**
+- [ ] Fix the cancel → restore-stock logic + add a test
+- [ ] Backfilling previously canceled orders is out of scope (separate issue #124)
+```
+
+An issue that is only a title ("stock bug") means re-supplying the context in conversation anyway — but an issue written like this can be handed to an MCP-connected Claude (see chapter 4) by number alone. It bakes the "request with purpose" principle above into your issue template, and spelling out "out of scope" in the completion criteria prevents unintended expansion before it starts.
+
 ### Example: letting Claude address review comments itself
 
 Review Claude's PRs by the same standard as a teammate's code — but the follow-up work can go back to Claude. Review comments follow the same principle as requests above: the more specific the location and the reason, the more accurate the fix.
