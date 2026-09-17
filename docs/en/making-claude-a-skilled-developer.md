@@ -194,6 +194,22 @@ services:
 
 In CLAUDE.md, one line is enough: "Run `docker compose up -d` before testing" — and if you fold it into the setup script (example above), even that line becomes unnecessary. Since dependency versions are pinned in the file, "works on my machine" environment differences disappear too.
 
+### Example: seed data that makes verification predictable
+
+If the DB is up (example above) but empty — or holds different data every time — Claude can run the code and still have no way to judge whether the result is correct. Provide a seed command that always produces the same state, and document what that data contains.
+
+```markdown
+## Test data
+
+`npm run db:seed` — resets the local DB to a fixed, known state.
+
+- 3 users: alice (admin), bob, carol
+- 5 orders: 3 PAID, 2 CANCELLED (all owned by bob)
+- 2 products: 1 in stock, 1 sold out
+```
+
+Now, given the task "add an API that lists only cancelled orders", Claude can call the API and confirm it returns **exactly 2 rows** before declaring the work done. Without the seed contents in the docs, an execution result proves nothing — the last piece of a "runnable environment" is predictable data.
+
 ## 3. A Fast Feedback Loop
 
 A skilled developer notices on their own when their code is wrong. Automated verification is what gives Claude that sense.
