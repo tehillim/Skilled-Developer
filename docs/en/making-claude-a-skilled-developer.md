@@ -282,6 +282,24 @@ A rule written in CLAUDE.md is a promise Claude reads and follows; a rule you ca
 
 A documented rule can be forgotten, but a lint rule surfaces as an error message the moment it is violated — and Claude sees that message and fixes the code itself. Put the alternative in the `message`, and "what is banned" and "what to use instead" arrive together. Not every convention can move into lint, but each one that can makes CLAUDE.md that much shorter and the rule that much more certain.
 
+### Example: test names that explain their own failures
+
+When a test fails, the test name and the assertion message are essentially all the information Claude gets. If the name describes the behavior, the failure list itself becomes a spec of "which behavior broke"; if not, Claude has to go back to the test code and reverse-engineer the intent.
+
+```ts
+// Bad — a failure tells you nothing about what broke
+test('cancel test 3', () => {
+  expect(result.ok).toBe(true);
+});
+
+// Good — the failure output is a bug report
+test('cancelling an order restores stock to its pre-order quantity', () => {
+  expect(stock.quantity).toBe(10);
+});
+```
+
+When the former fails, all you get is `Expected: true, Received: false`; when the latter fails, the run log alone says "stock restoration broke, and a value that should be 10 is something else." If chapter 5's "turning failure into useful feedback" is feedback a human gives, well-named tests are feedback the test suite gives on its own. As a bonus, Claude follows the style of existing names when it adds new tests, so good names propagate themselves once established.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.
