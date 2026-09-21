@@ -194,6 +194,22 @@ services:
 
 In CLAUDE.md, one line is enough: "Run `docker compose up -d` before testing" — and if you fold it into the setup script (example above), even that line becomes unnecessary. Since dependency versions are pinned in the file, "works on my machine" environment differences disappear too.
 
+### Example: seed data that makes verification predictable
+
+If the DB is up (example above) but empty — or holds different data every time — Claude can run the code and still have no way to judge whether the result is correct. Provide a seed command that always produces the same state, and document what that data contains.
+
+```markdown
+## Test data
+
+`npm run db:seed` — resets the local DB to a fixed, known state.
+
+- 3 users: alice (admin), bob, carol
+- 5 orders: 3 PAID, 2 CANCELLED (all owned by bob)
+- 2 products: 1 in stock, 1 sold out
+```
+
+Now, given the task "add an API that lists only cancelled orders", Claude can call the API and confirm it returns **exactly 2 rows** before declaring the work done. Without the seed contents in the docs, an execution result proves nothing — the last piece of a "runnable environment" is predictable data.
+
 ## 3. A Fast Feedback Loop
 
 A skilled developer notices on their own when their code is wrong. Automated verification is what gives Claude that sense.
@@ -266,6 +282,24 @@ A rule written in CLAUDE.md is a promise Claude reads and follows; a rule you ca
 
 A documented rule can be forgotten, but a lint rule surfaces as an error message the moment it is violated — and Claude sees that message and fixes the code itself. Put the alternative in the `message`, and "what is banned" and "what to use instead" arrive together. Not every convention can move into lint, but each one that can makes CLAUDE.md that much shorter and the rule that much more certain.
 
+### Example: test names that explain their own failures
+
+When a test fails, the test name and the assertion message are essentially all the information Claude gets. If the name describes the behavior, the failure list itself becomes a spec of "which behavior broke"; if not, Claude has to go back to the test code and reverse-engineer the intent.
+
+```ts
+// Bad — a failure tells you nothing about what broke
+test('cancel test 3', () => {
+  expect(result.ok).toBe(true);
+});
+
+// Good — the failure output is a bug report
+test('cancelling an order restores stock to its pre-order quantity', () => {
+  expect(stock.quantity).toBe(10);
+});
+```
+
+When the former fails, all you get is `Expected: true, Received: false`; when the latter fails, the run log alone says "stock restoration broke, and a value that should be 10 is something else." If chapter 5's "turning failure into useful feedback" is feedback a human gives, well-named tests are feedback the test suite gives on its own. As a bonus, Claude follows the style of existing names when it adds new tests, so good names propagate themselves once established.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.
@@ -289,6 +323,25 @@ Pre-allowing safe, frequent commands in `.claude/settings.json` removes the conf
   }
 }
 ```
+
+### Example: blocking dangerous commands with deny
+
+If `allow` is the list of commands that don't need a prompt every time, `deny` is the list of commands that won't be permitted even when asked. Block reads of secret files and hard-to-undo commands up front.
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)",
+      "Bash(git push --force:*)",
+      "Bash(rm -rf:*)"
+    ]
+  }
+}
+```
+
+`deny` takes precedence over `allow`, so the block holds even when a command accidentally matches a broad allow pattern. If review (section 5) is the safety net where a person checks the output, `deny` is the safety net that keeps dangerous things from happening in the first place — putting a hard-to-undo command on the list up front is cheaper than writing a rule after the incident.
 
 ### Example: connecting an MCP server
 
@@ -433,6 +486,28 @@ Asking for "add filtering, sorting, and CSV export to the order list" all at onc
 
 Each PR can be reviewed and shipped independently, and if something goes wrong, only that PR needs to be reverted. It also lets you give Claude a clear boundary — "only do step 1 for now" — which prevents unintended changes from sneaking in alongside the intended ones.
 
+### Example: writing issues Claude can pick up as-is
+
+For "handle issue #123" to work as a request, the issue itself has to be a good request. An issue that carries reproduction steps, expected behavior, and completion criteria becomes a work order that can be executed as-is, without a conversation to fill in the gaps.
+
+```markdown
+## Bug: stock is not restored after an order is canceled
+
+**Steps to reproduce**
+1. Order product A (stock 10 → 9)
+2. Cancel the order
+3. Stock is still 9 (expected: 10)
+
+**Expected behavior**
+On cancellation, stock should be restored to the pre-order quantity
+
+**Completion criteria**
+- [ ] Fix the cancel → restore-stock logic + add a test
+- [ ] Backfilling previously canceled orders is out of scope (separate issue #124)
+```
+
+An issue that is only a title ("stock bug") means re-supplying the context in conversation anyway — but an issue written like this can be handed to an MCP-connected Claude (see chapter 4) by number alone. It bakes the "request with purpose" principle above into your issue template, and spelling out "out of scope" in the completion criteria prevents unintended expansion before it starts.
+
 ### Example: letting Claude address review comments itself
 
 Review Claude's PRs by the same standard as a teammate's code — but the follow-up work can go back to Claude. Review comments follow the same principle as requests above: the more specific the location and the reason, the more accurate the fix.
@@ -481,6 +556,20 @@ When Claude repeats a mistake, add one line to CLAUDE.md right then. Recording t
 
 The cost of adding one line is small, but the benefit of never repeating the same correction compounds across every future session.
 
+### Example: capturing rules mid-conversation with the `#` shortcut
+
+The reason "add one line right then" rarely happens in practice is simple — it means breaking your flow to open and edit a file, so it becomes "I'll write it down later," and later never comes. In Claude Code, starting your input with `#` adds that content straight into a memory file (CLAUDE.md).
+
+```text
+> # After modifying a DB migration, always verify with npm run migrate:test
+
+→ Pick which memory file to save to (project CLAUDE.md / personal
+  settings, etc.) and it is appended as one line. Your work continues
+  uninterrupted.
+```
+
+When the moment you point out a mistake and the moment you record the rule become the same moment, the friction of accumulation drops to nearly zero. Asking at the end of a session "is there anything from this session worth adding to CLAUDE.md?" is a habit with the same goal. If the heart of chapter 6 is accumulation, the biggest enemy of accumulation is "later."
+
 ### Example: updating docs in the same PR as the code
 
 When a PR that changes structure also carries the doc update, the docs never get a chance to go stale. For example, a PR that moves a REST handler to a GraphQL resolver should have a file list like this:
@@ -495,6 +584,28 @@ PR: Migrate order queries to GraphQL
 ```
 
 Reviewers only need one checklist item: "did the docs change too?" Deferring doc updates to a separate task means they are usually forgotten — and the next session's Claude reads the stale doc and tries to add code to the deleted `src/api/`.
+
+### Example: putting CLAUDE.md on a diet — pruning stale rules
+
+As rules accumulate, CLAUDE.md only ever grows. But the longer the document, the more the rules that really matter get buried under the ones that matter less — and a single rule that is no longer true erodes trust in the whole document. About once a quarter, ask three questions of each rule.
+
+```text
+For each rule:
+
+1. Is it still true?
+   → "never modify src/legacy/" — if legacy is already deleted,
+     delete the rule too
+
+2. Can a machine enforce it?
+   → "import order: stdlib → external → internal" — move it into
+     a lint rule (see chapter 3) and remove it from the doc
+
+3. Has this rule actually helped in the last 3 months?
+   → If not, it is either too obvious or its moment has passed —
+     a candidate for deletion
+```
+
+You can even delegate the cleanup itself to Claude — ask "verify that each rule in CLAUDE.md still matches the current codebase," and it will find rules pointing at deleted directories or rules already enforced by lint, and report them as pruning candidates. When the accumulation from chapter 6 (adding) and the pruning in this example (removing) run together, CLAUDE.md is maintained by density, not length.
 
 ---
 
