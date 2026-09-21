@@ -556,6 +556,20 @@ When Claude repeats a mistake, add one line to CLAUDE.md right then. Recording t
 
 The cost of adding one line is small, but the benefit of never repeating the same correction compounds across every future session.
 
+### Example: capturing rules mid-conversation with the `#` shortcut
+
+The reason "add one line right then" rarely happens in practice is simple — it means breaking your flow to open and edit a file, so it becomes "I'll write it down later," and later never comes. In Claude Code, starting your input with `#` adds that content straight into a memory file (CLAUDE.md).
+
+```text
+> # After modifying a DB migration, always verify with npm run migrate:test
+
+→ Pick which memory file to save to (project CLAUDE.md / personal
+  settings, etc.) and it is appended as one line. Your work continues
+  uninterrupted.
+```
+
+When the moment you point out a mistake and the moment you record the rule become the same moment, the friction of accumulation drops to nearly zero. Asking at the end of a session "is there anything from this session worth adding to CLAUDE.md?" is a habit with the same goal. If the heart of chapter 6 is accumulation, the biggest enemy of accumulation is "later."
+
 ### Example: updating docs in the same PR as the code
 
 When a PR that changes structure also carries the doc update, the docs never get a chance to go stale. For example, a PR that moves a REST handler to a GraphQL resolver should have a file list like this:
