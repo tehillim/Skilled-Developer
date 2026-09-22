@@ -124,6 +124,20 @@ and let a separate relay forward them to the queue.
 
 With this file in `docs/adr/`, Claude follows the outbox pattern instead of suggesting "just publish straight to the queue — it's simpler", and can flag code that violates the decision.
 
+### Example: per-directory CLAUDE.md files in a monorepo
+
+In a monorepo with many packages, cramming every rule into one root CLAUDE.md makes the document long while the rules needed for any given package get harder to find. CLAUDE.md files can also live in subdirectories, and Claude consults them when working on files in that directory.
+
+```text
+repo/
+├── CLAUDE.md              ← shared: overall structure, common commands, commit rules
+├── apps/web/CLAUDE.md     ← web only: Next.js conventions, component rules
+├── apps/api/CLAUDE.md     ← API only: error response format, DB access rules
+└── packages/shared/CLAUDE.md ← caveats like "changes require testing both apps"
+```
+
+Keep only what applies everywhere at the root, and push package-specific rules down into that package's CLAUDE.md. A session that only touches `apps/api/` no longer has to read frontend conventions, and because rules sit close to the code they govern, the docs are more likely to be updated in the same PR when that code changes (see section 6).
+
 ## 2. A Verifiable Development Environment
 
 Claude is far more capable when it can **run the code and check the result**. Code written by guessing and code verified by execution differ greatly in quality.
