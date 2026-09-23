@@ -224,6 +224,24 @@ If the DB is up (example above) but empty — or holds different data every time
 
 Now, given the task "add an API that lists only cancelled orders", Claude can call the API and confirm it returns **exactly 2 rows** before declaring the work done. Without the seed contents in the docs, an execution result proves nothing — the last piece of a "runnable environment" is predictable data.
 
+### Example: pin the runtime version in a file too
+
+A lockfile pins library versions, but not the version of Node or Python they run on. If local is on Node 20 while CI runs Node 18, Claude ends up suspecting the code for a failure it cannot reproduce. Commit the runtime version to the repository as a file as well.
+
+```bash
+# .nvmrc — read by nvm and by setup-node in CI
+20.11.1
+```
+
+```json
+// package.json — fail fast at install time when versions don't match
+{
+  "engines": { "node": ">=20 <21" }
+}
+```
+
+Once the version exists as a file, three places line up: a human's local machine (`nvm use`), CI (`node-version-file` in `actions/setup-node`), and Claude — when the environment misbehaves, it can compare this file against the actual version (`node --version`) and diagnose "not a code problem, a runtime version mismatch". For Python, use `.python-version`; with multiple tools, a single `.tool-versions` from mise does the same job. Where the Docker example above pins the versions of external dependencies, this one pins the version of the runtime itself.
+
 ## 3. A Fast Feedback Loop
 
 A skilled developer notices on their own when their code is wrong. Automated verification is what gives Claude that sense.
