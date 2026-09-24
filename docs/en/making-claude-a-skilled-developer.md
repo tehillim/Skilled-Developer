@@ -294,6 +294,22 @@ If the full suite takes 10 minutes, Claude either waits 10 minutes per edit-veri
 
 When the feedback loop shrinks to seconds, Claude verifies as it goes, after every change. The shorter the verification cycle, the sooner it can turn back before going far in the wrong direction.
 
+### Example: make one-shot commands the default, not watch mode
+
+Humans prefer watch mode, which reruns automatically on every save — but to Claude, a watch command is a **command that never ends**. The process doesn't exit, so Claude either waits without ever getting a result or has to kill it. Make the default commands in your docs and scripts run once and finish with an exit code.
+
+```json
+// package.json — the default runs once; watch mode is split out for humans
+{
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}
+```
+
+If the default is a long-lived command like `vitest`, `jest --watch`, or `tsc --watch`, Claude trips over it every time. For the same reason, when an interactive command waits for a y/n answer mid-run, document its non-interactive flag (`--yes` and the like) alongside it. A good command for Claude completes the cycle "run → exit → exit code and output" in one shot — which is exactly what the CI example above wants too. Agent-friendly commands and CI-friendly commands turn out to be the same thing.
+
 ### Example: enforcing conventions as lint rules
 
 A rule written in CLAUDE.md is a promise Claude reads and follows; a rule you can express as a lint rule becomes one a machine verifies. For example, "no imports from `src/legacy/` in new code" can be enforced with ESLint.
