@@ -583,6 +583,23 @@ When the result isn't what you expected, saying only "it doesn't work" forces Cl
 
 Give Claude **verifiable facts** — the error message, the failing test name, the policy that was violated — and it can start fixing from exactly that point instead of guessing. And if the same failure keeps recurring, that feedback is a candidate for a rule in CLAUDE.md (see section 6).
 
+### Example: cleaning up context when the conversation runs long
+
+All Claude remembers at any moment is the current conversation's context, and that context has a size limit. Carrying unrelated tasks through a single session keeps the earlier task's file contents and dead ends occupying that space, and accuracy degrades the further you go.
+
+- **Start fresh with `/clear` when the task changes.** If you've finished a bug fix and are starting a new feature, wiping the slate beats continuing the thread. The context that matters is already in CLAUDE.md and the code (see section 1).
+- **For long tasks, have Claude write intermediate state to a file.** A summary file, rather than the conversation history, becomes the next session's context — so the work continues even when the session doesn't.
+
+```text
+> Write what we've decided so far and what remains to TODO.md,
+  so the next session can pick up from that file alone.
+
+(in a new session)
+> Read TODO.md and continue from there.
+```
+
+"One task per session" is good for the same reason as "one purpose per PR" above — the clearer the boundary, the more accurate the result. And note that TODO.md and CLAUDE.md hold different things: progress that only applies to the current task goes in TODO.md; rules that should apply to every session go in CLAUDE.md (see section 6).
+
 ## 6. Continuous Improvement
 
 Onboarding is not a one-time event. Competence comes from accumulation.
