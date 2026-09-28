@@ -348,6 +348,22 @@ test('cancelling an order restores stock to its pre-order quantity', () => {
 
 When the former fails, all you get is `Expected: true, Received: false`; when the latter fails, the run log alone says "stock restoration broke, and a value that should be 10 is something else." If chapter 5's "turning failure into useful feedback" is feedback a human gives, well-named tests are feedback the test suite gives on its own. As a bonus, Claude follows the style of existing names when it adds new tests, so good names propagate themselves once established.
 
+### Example: quiet on success, detailed on failure — output signal-to-noise
+
+The terminal output is all the information Claude gets from running a command, and that output consumes limited conversation context. When two lines of failure are buried between hundreds of lines of passing tests and debug logs, context that should go into root-causing gets spent reading noise — and very long output gets truncated, sometimes losing the failure itself. Tune your default commands to "summarize success, detail failure".
+
+```json
+// package.json — passes get a one-line summary; only failing tests print in full
+{
+  "scripts": {
+    "test": "vitest run --reporter=dot",
+    "test:verbose": "vitest run --reporter=verbose"
+  }
+}
+```
+
+Debug logs your application prints during tests are the same problem, so raise the log level in the test environment (`LOG_LEVEL=warn` in `.env.test`, for instance). Where the "test names" example above improves the **content** of a failure message, this one protects its **signal-to-noise ratio** so the message doesn't drown. The quieter the output, the more weight a single failure line carries — and Claude spends its remaining context on root-causing instead of scrolling through noise.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.
