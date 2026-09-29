@@ -521,6 +521,22 @@ The same bug fix can land very differently depending on the request. Instead of 
 
 Passing along the symptom, expected behavior, and suspected cause or relevant files makes it much more likely that Claude finds and fixes the verified cause instead of guessing.
 
+### Example: for bug fixes, ask for a reproducing test first
+
+Ask for a bug to be "just fixed", and whether the fix actually catches that bug remains unproven. Spell out the order in your request — first write a failing test that reproduces the bug and confirm it fails, then fix the code and finish by showing that same test passing.
+
+```text
+> There's a bug where stock isn't restored after an order is canceled.
+> Don't fix it right away:
+> 1. First write a test that reproduces the bug, and confirm it fails
+> 2. Then fix the code, and finish by showing that same test passing
+
+Step 1: added tests/orders/cancel.test.ts → FAIL (stock 9, expected 10)
+Step 2: modified src/services/orders.ts → PASS
+```
+
+This order produces two pieces of evidence. The failing test proves "the bug was understood correctly", which prevents fixing the wrong place; the test turning green proves "the fix actually worked", so "it's fixed" is confirmed by an execution result rather than taken on faith. As a bonus, that test stays in the repository as a regression test against the same bug returning. And since this request only works when there is an environment where tests can run (section 2), good request habits and a good environment reinforce each other.
+
 ### Example: reviewing a plan first in plan mode
 
 For design-heavy work that touches multiple files, don't jump straight into implementation — use plan mode (`Shift+Tab`) to get a plan first. In this mode Claude only investigates, without modifying code, and then presents an implementation plan.
