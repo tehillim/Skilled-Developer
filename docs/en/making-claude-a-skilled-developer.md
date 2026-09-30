@@ -310,6 +310,30 @@ Humans prefer watch mode, which reruns automatically on every save — but to Cl
 
 If the default is a long-lived command like `vitest`, `jest --watch`, or `tsc --watch`, Claude trips over it every time. For the same reason, when an interactive command waits for a y/n answer mid-run, document its non-interactive flag (`--yes` and the like) alongside it. A good command for Claude completes the cycle "run → exit → exit code and output" in one shot — which is exactly what the CI example above wants too. Agent-friendly commands and CI-friendly commands turn out to be the same thing.
 
+### Example: make exit codes tell the truth
+
+In the "run → exit → exit code" cycle above, the exit code is what Claude uses to tell success from failure. A human spots the red error text in the output; a command that fails but still exits 0 hands Claude a false "verification passed" signal. When composing verification commands, avoid patterns that silently swallow failures.
+
+```json
+// package.json — with ; a failing first command is skipped over,
+// and the script exits with the last command's code
+{
+  "scripts": {
+    "check:bad": "npm run lint; npm test",
+    "check": "npm run lint && npm test"
+  }
+}
+```
+
+```bash
+# scripts/check.sh — for shell scripts, put the safety net on line one
+set -euo pipefail  # stop on failure (-e), propagate failures mid-pipe (pipefail)
+
+npm test | tee test.log  # without pipefail, tee's success (0) masks a test failure
+```
+
+This is exactly why the setup script in section 2 starts with `set -euo pipefail`. The opposite trap exists too — a tool that returns a nonzero code over mere warnings keeps Claude stuck on a verification that actually passed. The rule is singular: **exit code 0 must mean exactly "safe to merge" and anything else exactly "needs fixing"** — that is what lets Claude's self-verification loop run without false signals.
+
 ### Example: enforcing conventions as lint rules
 
 A rule written in CLAUDE.md is a promise Claude reads and follows; a rule you can express as a lint rule becomes one a machine verifies. For example, "no imports from `src/legacy/` in new code" can be enforced with ESLint.
