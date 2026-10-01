@@ -431,6 +431,17 @@ If `allow` is the list of commands that don't need a prompt every time, `deny` i
 
 `deny` takes precedence over `allow`, so the block holds even when a command accidentally matches a broad allow pattern. If review (section 5) is the safety net where a person checks the output, `deny` is the safety net that keeps dangerous things from happening in the first place — putting a hard-to-undo command on the list up front is cheaper than writing a rule after the incident.
 
+### Example: commit team settings, keep personal settings separate
+
+If the allow/deny lists above live only on each person's machine, every teammate working in the same repository ends up with a different set of Claude permissions. The settings files come in two layers with different jobs.
+
+```text
+.claude/settings.json        ← committed — shared by the team (allow tests/lint, block secrets, …)
+.claude/settings.local.json  ← not committed — personal (tools only you use, experimental allows)
+```
+
+Put the rules the project needs in `settings.json` and commit it. A new teammate inherits the team's decisions — "run tests without asking, block reads of `.env`" — just by cloning, and changes to the permission rules go through code review. Tools only one person uses, or allow entries you haven't proposed to the team yet, belong in `settings.local.json` — Claude Code adds it to `.gitignore` automatically, so it can't be committed by accident. Where the two overlap, local wins. Just as CLAUDE.md (section 1) accumulates the project's knowledge in the repository, a committed settings.json accumulates the team's decisions about permissions there — the point is that neither stays as tacit knowledge on one person's machine.
+
 ### Example: connecting an MCP server
 
 Committing a `.mcp.json` at the repository root lets the whole team share the same external-system integrations. With the GitHub MCP server connected, for example, a single request like "read issue #123, fix it, and open a PR" can cover everything from reading the issue to creating the PR.
