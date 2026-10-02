@@ -739,6 +739,32 @@ For each rule:
 
 You can even delegate the cleanup itself to Claude — ask "verify that each rule in CLAUDE.md still matches the current codebase," and it will find rules pointing at deleted directories or rules already enforced by lint, and report them as pruning candidates. When the accumulation from chapter 6 (adding) and the pruning in this example (removing) run together, CLAUDE.md is maintained by density, not length.
 
+### Example: choosing where a lesson should live
+
+Once you have decided "let's make this a rule," the next question is "where." The storage locations introduced in this document differ in how strongly they are enforced, so the same lesson sticks to a different degree depending on where you put it.
+
+```text
+When you learn something, ask in order from the top:
+
+1. Can a machine verify it?
+   → lint/types/tests (ch. 3) — "no legacy imports" becomes an ESLint rule
+
+2. Must it run every single time?
+   → a hook (ch. 4) — "format after edits" becomes a PostToolUse hook
+
+3. Is it a multi-step procedure?
+   → a skill (ch. 4) — "how we write release notes" goes in .claude/skills/
+
+4. Is it a decision about allowing/blocking commands?
+   → settings.json (ch. 4) — "no git push --force" goes in the deny list
+
+5. Is it knowledge or context that fits none of the above?
+   → only then CLAUDE.md (ch. 1) — reasons and background like "amounts
+     use the Money type only; we once had a rounding incident"
+```
+
+The reason CLAUDE.md is the last resort is simple — the document is a promise Claude reads and follows, while the others are mechanisms that fail the moment they are violated or block the action outright. The more rules you move into mechanisms, the more the document holds only the "why" and the context that mechanisms cannot express — and a shorter document is read that much better. If the "diet" example above is cleanup that exports accumulated rules to stronger homes, this example is the habit of putting them in the right home from the start, leaving less to clean up.
+
 ---
 
 ## Checklist
