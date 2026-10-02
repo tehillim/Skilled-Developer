@@ -431,6 +431,17 @@ If `allow` is the list of commands that don't need a prompt every time, `deny` i
 
 `deny` takes precedence over `allow`, so the block holds even when a command accidentally matches a broad allow pattern. If review (section 5) is the safety net where a person checks the output, `deny` is the safety net that keeps dangerous things from happening in the first place — putting a hard-to-undo command on the list up front is cheaper than writing a rule after the incident.
 
+### Example: commit team settings, keep personal settings separate
+
+If the allow/deny lists above live only on each person's machine, every teammate working in the same repository ends up with a different set of Claude permissions. The settings files come in two layers with different jobs.
+
+```text
+.claude/settings.json        ← committed — shared by the team (allow tests/lint, block secrets, …)
+.claude/settings.local.json  ← not committed — personal (tools only you use, experimental allows)
+```
+
+Put the rules the project needs in `settings.json` and commit it. A new teammate inherits the team's decisions — "run tests without asking, block reads of `.env`" — just by cloning, and changes to the permission rules go through code review. Tools only one person uses, or allow entries you haven't proposed to the team yet, belong in `settings.local.json` — Claude Code adds it to `.gitignore` automatically, so it can't be committed by accident. Where the two overlap, local wins. Just as CLAUDE.md (section 1) accumulates the project's knowledge in the repository, a committed settings.json accumulates the team's decisions about permissions there — the point is that neither stays as tacit knowledge on one person's machine.
+
 ### Example: connecting an MCP server
 
 Committing a `.mcp.json` at the repository root lets the whole team share the same external-system integrations. With the GitHub MCP server connected, for example, a single request like "read issue #123, fix it, and open a PR" can cover everything from reading the issue to creating the PR.
@@ -727,6 +738,32 @@ For each rule:
 ```
 
 You can even delegate the cleanup itself to Claude — ask "verify that each rule in CLAUDE.md still matches the current codebase," and it will find rules pointing at deleted directories or rules already enforced by lint, and report them as pruning candidates. When the accumulation from chapter 6 (adding) and the pruning in this example (removing) run together, CLAUDE.md is maintained by density, not length.
+
+### Example: choosing where a lesson should live
+
+Once you have decided "let's make this a rule," the next question is "where." The storage locations introduced in this document differ in how strongly they are enforced, so the same lesson sticks to a different degree depending on where you put it.
+
+```text
+When you learn something, ask in order from the top:
+
+1. Can a machine verify it?
+   → lint/types/tests (ch. 3) — "no legacy imports" becomes an ESLint rule
+
+2. Must it run every single time?
+   → a hook (ch. 4) — "format after edits" becomes a PostToolUse hook
+
+3. Is it a multi-step procedure?
+   → a skill (ch. 4) — "how we write release notes" goes in .claude/skills/
+
+4. Is it a decision about allowing/blocking commands?
+   → settings.json (ch. 4) — "no git push --force" goes in the deny list
+
+5. Is it knowledge or context that fits none of the above?
+   → only then CLAUDE.md (ch. 1) — reasons and background like "amounts
+     use the Money type only; we once had a rounding incident"
+```
+
+The reason CLAUDE.md is the last resort is simple — the document is a promise Claude reads and follows, while the others are mechanisms that fail the moment they are violated or block the action outright. The more rules you move into mechanisms, the more the document holds only the "why" and the context that mechanisms cannot express — and a shorter document is read that much better. If the "diet" example above is cleanup that exports accumulated rules to stronger homes, this example is the habit of putting them in the right home from the start, leaving less to clean up.
 
 ---
 
