@@ -388,6 +388,24 @@ The terminal output is all the information Claude gets from running a command, a
 
 Debug logs your application prints during tests are the same problem, so raise the log level in the test environment (`LOG_LEVEL=warn` in `.env.test`, for instance). Where the "test names" example above improves the **content** of a failure message, this one protects its **signal-to-noise ratio** so the message doesn't drown. The quieter the output, the more weight a single failure line carries — and Claude spends its remaining context on root-causing instead of scrolling through noise.
 
+### Example: flaky tests are false signals — make them deterministic, cause by cause
+
+Claude's self-verification loop runs on the premise that "a test failure = a problem with the change I just made". Tests whose results vary from run to run break that premise — Claude either modifies perfectly fine code chasing a failure that has nothing to do with it, or learns to dismiss a real failure as "that test does that sometimes". Flakiness usually comes from one of three causes, and each has a deterministic replacement.
+
+```ts
+// Time-dependent — use fake timers instead of waiting on real time
+vi.useFakeTimers();
+vi.advanceTimersByTime(5000);   // setTimeout(..., 5000) fires immediately
+
+// Order-dependent — reset shared state before every test
+beforeEach(() => resetDb());    // same result regardless of execution order
+
+// Network-dependent — fixed responses instead of real external APIs
+server.use(http.get('/rates', () => HttpResponse.json({ usd: 1350 })));
+```
+
+A human team filters out false signals with tribal knowledge ("that test just fails sometimes"), but Claude starts every session without that knowledge and takes every failure seriously — which is why flaky tests cost Claude more than they cost people. If you can't fix one right away, the second-best option is to quarantine it explicitly with an issue number and keep a list of known-flaky tests in CLAUDE.md. Where the "exit codes" example above protects the **honesty** of the pass/fail signal, this one protects its **reproducibility** — same input, same result. If either collapses, the self-verification loop becomes a loop you can't trust.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.
