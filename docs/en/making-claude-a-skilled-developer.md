@@ -783,6 +783,25 @@ When you learn something, ask in order from the top:
 
 The reason CLAUDE.md is the last resort is simple — the document is a promise Claude reads and follows, while the others are mechanisms that fail the moment they are violated or block the action outright. The more rules you move into mechanisms, the more the document holds only the "why" and the context that mechanisms cannot express — and a shorter document is read that much better. If the "diet" example above is cleanup that exports accumulated rules to stronger homes, this example is the habit of putting them in the right home from the start, leaving less to clean up.
 
+### Example: finding documentation gaps with a fresh session — the onboarding test
+
+Most of the accumulation in this chapter is reactive — it happens after a mistake. There is also a way to find the gaps ahead of time: give a small, representative task to a fresh Claude session with no context, and watch where it hesitates. It turns the principle from chapter 1 ("could a new senior developer open their first PR from the docs alone?") from a belief into a test you actually run.
+
+```text
+> (fresh session, right after /clear) Add a status filter
+> parameter to the order listing API.
+
+Observed hesitations → what to add to the docs:
+- Skipped the tests because it didn't know how to start the test DB
+  → one line in CLAUDE.md: "docker compose up -d before testing" (ch. 2)
+- Reverse-engineered the error response format from three call sites
+  → write an API response conventions doc, link it from CLAUDE.md (ch. 1)
+- Asked back "should I also create a migration?"
+  → spell out the schema-change procedure in CLAUDE.md
+```
+
+Every point where Claude guesses, asks back, or spends time exploring is a documentation gap. Onboarding a human newcomer happens once in a few months, but this test can be repeated in minutes — and at the end of any working session you can ask "list the things you had to dig out of the code because the docs didn't cover them" and have Claude report the gap list itself. If the examples above fill gaps after a mistake has exposed them, this one exposes the same gaps cheaply, before a mistake has to pay for them.
+
 ---
 
 ## Checklist
