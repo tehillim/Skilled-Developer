@@ -83,6 +83,22 @@ The same item can be actionable or useless depending on how specifically it is w
 
 Words like "complex" and "thorough" are vague even for humans. Concrete file paths, reasons, and verification steps are what let Claude act on them.
 
+### Example: pointing at an exemplar file instead of writing long descriptions
+
+Spelling out every convention in prose makes the document long — and even a long description ends up leaving something out. Claude is good at following the patterns in existing code, so pointing at the one file where the team's conventions are best observed often works better than paragraphs of explanation.
+
+```markdown
+## Conventions
+
+- Write new API endpoints using `src/api/orders.ts` as the model
+  (follow this file's structure for route registration, input validation,
+  error mapping, and test location)
+- For new React components, see `src/components/OrderList.tsx`
+  — but its inline styles are legacy; use CSS modules in new code
+```
+
+When you point, state the scope of what to imitate, and if the exemplar has stale parts mixed in, call out the exception explicitly, as the second line does. A pointer has one advantage prose never has — when the exemplar file is refactored, the "documentation" updates itself. This is the "vague vs. specific" example above taken to its limit: the most specific description of a convention is one real file that follows it.
+
 ### Example: glossary
 
 When domain terms and code names differ, Claude searches the wrong places or invents new names. Even a short mapping table keeps code navigation and naming consistent.
