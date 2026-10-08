@@ -240,6 +240,21 @@ If the DB is up (example above) but empty — or holds different data every time
 
 Now, given the task "add an API that lists only cancelled orders", Claude can call the API and confirm it returns **exactly 2 rows** before declaring the work done. Without the seed contents in the docs, an execution result proves nothing — the last piece of a "runnable environment" is predictable data.
 
+### Example: one command that resets the environment to a known state
+
+Bold experimentation requires cheap failure. When a botched migration or a messy test leaves the environment in a strange state and there is no way back, Claude ends up debugging perfectly fine code, unable to tell "is the environment broken, or is the code wrong?". Provide a single reset command that returns everything to a known initial state.
+
+```json
+// package.json — containers, schema, and seed data back to the initial state in one go
+{
+  "scripts": {
+    "db:reset": "docker compose down -v && docker compose up -d --wait && npm run migrate && npm run db:seed"
+  }
+}
+```
+
+In CLAUDE.md, one line is enough: "If the DB state looks suspicious, run `npm run db:reset`". A reset changes the first step of debugging — faced with a strange failure, Claude can reset and retry: if it still reproduces, it's a code problem; if it disappears, it was the environment. Where the seed example above makes verification results predictable, the reset command is the guarantee that this predictable state is **always a few seconds away**. The more certain the way back, the more willing Claude is to attempt and verify work that looks hard to undo, like migration experiments.
+
 ### Example: pin the runtime version in a file too
 
 A lockfile pins library versions, but not the version of Node or Python they run on. If local is on Node 20 while CI runs Node 18, Claude ends up suspecting the code for a failure it cannot reproduce. Commit the runtime version to the repository as a file as well.
