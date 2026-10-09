@@ -640,6 +640,24 @@ Claude's plan:
 
 Correcting direction before implementation starts costs almost nothing — a very different story from saying "actually, that's not what I meant" after dozens of files have changed.
 
+### Example: have ambiguities surfaced as questions before implementation
+
+When a request is ambiguous, Claude tends to pick one plausible interpretation and proceed rather than ask. When the interpretation is right, that's fast; when it's wrong, the mismatch only surfaces after everything is built. Add one line to the request that explicitly invites questions.
+
+```text
+> Add a date-range filter to the order list.
+> Before you start, ask me about anything unclear in the requirements.
+
+Claude's questions:
+1. Should the range apply to order creation time or payment completion time?
+2. Are date boundaries in the user's local timezone, or fixed to KST?
+3. Should the filter default to all time, or to the last 30 days?
+
+> 1. Creation time  2. Fixed KST  3. Last 30 days
+```
+
+One wrong guess means redoing the whole implementation; three questions cost one message. If plan mode (previous example) confirms direction with a fully investigated plan, this one line is a lighter device that exposes the gaps before a plan is even drawn up. And some of the questions have answers that exist nowhere in the code — domain decisions like the timezone policy. If the same question comes up session after session, its answer is a candidate for CLAUDE.md (see section 6), and promoting "when requirements are unclear, ask instead of guessing" itself to a rule there removes the need to append the line to every request.
+
 ### Example: scoping work into units
 
 Asking for "add filtering, sorting, and CSV export to the order list" all at once produces a PR touching dozens of files — hard to review, and hard to pinpoint when something breaks. Split it by purpose and request the pieces in order.
