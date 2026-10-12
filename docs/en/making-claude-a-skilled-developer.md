@@ -437,6 +437,23 @@ server.use(http.get('/rates', () => HttpResponse.json({ usd: 1350 })));
 
 A human team filters out false signals with tribal knowledge ("that test just fails sometimes"), but Claude starts every session without that knowledge and takes every failure seriously — which is why flaky tests cost Claude more than they cost people. If you can't fix one right away, the second-best option is to quarantine it explicitly with an issue number and keep a list of known-flaky tests in CLAUDE.md. Where the "exit codes" example above protects the **honesty** of the pass/fail signal, this one protects its **reproducibility** — same input, same result. If either collapses, the self-verification loop becomes a loop you can't trust.
 
+### Example: give UI work a feedback loop too — let Claude see the result
+
+The tests, types, and lint in this chapter are feedback loops for logic, but a visual problem like "the buttons overlap" can't be verified by reading code. Without a way to check, Claude has no choice but to tweak the CSS and close with a guess — "that should look right now." Claude can read images, so giving it a way to capture the screen as a screenshot creates the same fix-and-verify loop for UI work.
+
+```ts
+// scripts/screenshot.ts — a one-shot command that captures a page to a file and exits
+import { chromium } from 'playwright';
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+await page.goto(process.argv[2] ?? 'http://localhost:3000');
+await page.screenshot({ path: 'tmp/screenshot.png', fullPage: true });
+await browser.close();
+```
+
+One line in CLAUDE.md is enough: "after any UI change, capture it with `npm run screenshot -- /orders` and check it yourself." Connect a Playwright MCP server (see chapter 4) and Claude can go beyond capturing to verifying interactions — clicks and form input included. The reverse direction is just as useful: attach a screenshot of the target design to your request, and Claude iterates by comparing its implementation's capture against the target image side by side until the gap disappears. Chapter 3 comes down to one principle: does Claude have a way to check its own work — tests are that means for logic, and screenshots are that means for the screen.
+
 ## 4. The Right Permissions and Tools
 
 - **Permission settings** (`.claude/settings.json`): pre-allow safe, frequently used commands (tests, lint, read-only operations) so work flows without a confirmation prompt every time.

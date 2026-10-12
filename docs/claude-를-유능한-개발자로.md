@@ -435,6 +435,23 @@ server.use(http.get('/rates', () => HttpResponse.json({ usd: 1350 })));
 
 사람 팀은 "그 테스트 원래 가끔 실패해"라는 암묵지로 거짓 신호를 걸러 내지만, Claude는 매 세션 그 지식 없이 시작하므로 모든 실패를 진지하게 받아들입니다(그래서 흔들리는 테스트의 비용은 사람보다 Claude에게 더 큽니다). 당장 고칠 수 없다면 이슈 번호를 달아 명시적으로 격리하고, CLAUDE.md에 알려진 플레이키 테스트 목록을 남기는 것이 차선입니다. 위의 "종료 코드" 예시가 성공·실패 신호의 **정직함**을 지킨다면, 이 예시는 같은 입력에 같은 결과가 나오는 **재현성**을 지킵니다 — 둘 중 하나만 무너져도 자가 검증 루프는 믿을 수 없는 루프가 됩니다.
 
+### 예시: UI 작업에도 피드백 루프 주기 — 결과를 눈으로 확인하게 하기
+
+이 장의 테스트·타입·린트는 로직의 피드백 루프이지만, "버튼이 겹쳐 보인다" 같은 시각적 문제는 코드만 읽어서는 검증할 수 없습니다. 확인 수단이 없으면 Claude는 CSS를 고친 뒤 "이제 괜찮을 것"이라는 추측으로 마칠 수밖에 없습니다. Claude는 이미지를 읽을 수 있으므로, 화면을 스크린샷으로 받아볼 수단을 주면 UI 작업에도 수정→확인 루프가 생깁니다.
+
+```ts
+// scripts/screenshot.ts — 페이지를 파일로 캡처하고 종료하는 단발 명령
+import { chromium } from 'playwright';
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+await page.goto(process.argv[2] ?? 'http://localhost:3000');
+await page.screenshot({ path: 'tmp/screenshot.png', fullPage: true });
+await browser.close();
+```
+
+CLAUDE.md에는 "UI 변경 후에는 `npm run screenshot -- /orders`로 캡처해 직접 확인할 것" 한 줄이면 됩니다. Playwright MCP 서버를 연결하면(4장 참고) 캡처를 넘어 클릭·입력이 포함된 동작 확인까지 맡길 수 있습니다. 반대 방향도 유용합니다 — 요청할 때 목표 디자인의 스크린샷을 붙여 주면, Claude는 구현 결과의 캡처와 목표 이미지를 나란히 비교하며 차이가 사라질 때까지 반복 수정합니다. 3장의 원칙은 결국 하나입니다: Claude가 자기 결과물을 스스로 확인할 수단이 있는가 — 로직에는 테스트가, 화면에는 스크린샷이 그 수단입니다.
+
 ## 4. 적절한 권한과 도구
 
 - **권한 설정** (`.claude/settings.json`): 자주 쓰는 안전한 명령(테스트, 린트, 읽기 계열)을 미리 허용해 두면 매번 확인을 거치지 않고 막힘없이 일합니다.
