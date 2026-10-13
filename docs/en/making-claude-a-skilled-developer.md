@@ -497,6 +497,31 @@ If `allow` is the list of commands that don't need a prompt every time, `deny` i
 
 `deny` takes precedence over `allow`, so the block holds even when a command accidentally matches a broad allow pattern. If review (section 5) is the safety net where a person checks the output, `deny` is the safety net that keeps dangerous things from happening in the first place — putting a hard-to-undo command on the list up front is cheaper than writing a rule after the incident.
 
+### Example: wrap a risky tool in a safe wrapper script, then allow the wrapper
+
+allow and deny alone struggle to express the middle ground — "querying the DB is fine, modifying it is not." Allow `psql` wholesale and UPDATE and DELETE come along with it; block it wholesale and a person has to run every query during debugging. For cases like this, write a wrapper script that exposes only the safe part of the tool, and put the wrapper — not the underlying tool — on the allow list.
+
+```bash
+#!/usr/bin/env bash
+# scripts/db-query.sh — run queries inside a read-only transaction only
+set -euo pipefail
+
+psql "$DATABASE_URL" \
+  --set=ON_ERROR_STOP=1 \
+  -c "BEGIN TRANSACTION READ ONLY; $1; COMMIT;"
+```
+
+```json
+// .claude/settings.json — allow the wrapper instead of psql
+{
+  "permissions": {
+    "allow": ["Bash(./scripts/db-query.sh:*)"]
+  }
+}
+```
+
+Now on a task like "debug this slow query," Claude can inspect real data directly as it works, while changing data — even by accident — is blocked at the script level. If deny blocks a dangerous command outright, a wrapper carves the safe part out of a dangerous tool and hands over only that — the binary choice of allow-or-not becomes a design question of how far to allow. The same pattern applies anywhere the permission boundary is finer than a command name: a deploy script that only targets staging, a cloud CLI wrapped to expose read commands only.
+
 ### Example: commit team settings, keep personal settings separate
 
 If the allow/deny lists above live only on each person's machine, every teammate working in the same repository ends up with a different set of Claude permissions. The settings files come in two layers with different jobs.
