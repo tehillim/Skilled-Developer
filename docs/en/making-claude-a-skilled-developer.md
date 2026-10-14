@@ -776,6 +776,25 @@ All Claude remembers at any moment is the current conversation's context, and th
 
 "One task per session" is good for the same reason as "one purpose per PR" above — the clearer the boundary, the more accurate the result. And note that TODO.md and CLAUDE.md hold different things: progress that only applies to the current task goes in TODO.md; rules that should apply to every session go in CLAUDE.md (see section 6).
 
+### Example: for parallel work, separate the workspaces first with git worktree
+
+Even while keeping "one task per session", independent tasks tempt you to run several sessions at once. The problem is space — two sessions working in the same checkout means one side's edits change the other side's test results, and at commit time the two tasks' changes are tangled together. `git worktree` checks one repository out into multiple directories, so each session gets its own workspace and branch.
+
+```bash
+# One directory + branch per task
+git worktree add ../myapp-login-fix fix/login-lockout
+git worktree add ../myapp-order-filter feat/order-filter
+
+# Run a separate Claude session in each directory
+# Session 1: fix the login bug in ../myapp-login-fix
+# Session 2: build the filter feature in ../myapp-order-filter
+
+# Clean up a workspace once its branch is merged
+git worktree remove ../myapp-login-fix
+```
+
+Worktrees isolate files from each other but share one repository's commit history, so unlike multiple clones they are lightweight and branch cleanup stays in one place. Two things to watch. A new worktree starts as a bare environment and needs its dependencies installed — with the setup script from chapter 2, that's one line: "run `./scripts/setup.sh` in each directory". And machine-wide resources like ports are not isolated, so if the sessions will each run a dev server, make the port configurable via an environment variable. If "one purpose per PR" divides work along the time axis, worktrees extend the same principle to the space axis — the clearer the boundary, the more accurate the result holds for parallel work too.
+
 ## 6. Continuous Improvement
 
 Onboarding is not a one-time event. Competence comes from accumulation.
