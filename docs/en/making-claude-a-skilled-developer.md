@@ -710,6 +710,23 @@ Asking for "add filtering, sorting, and CSV export to the order list" all at onc
 
 Each PR can be reviewed and shipped independently, and if something goes wrong, only that PR needs to be reverted. It also lets you give Claude a clear boundary — "only do step 1 for now" — which prevents unintended changes from sneaking in alongside the intended ones.
 
+### Example: leave checkpoint commits as the work progresses
+
+If "one PR, one purpose" draws the boundary between pieces of work, commits are the checkpoints within one. Drive a multi-step task to the end without committing, and when the last step reveals the direction was wrong there is no point to return to — you either throw away the healthy earlier steps along with it, or pick them apart from the tangled changes by hand. Ask Claude to commit each time a step is complete and passes verification.
+
+```text
+> Add order cancellation. Commit after each step once its tests pass.
+
+commit 1: cancelOrder() service logic + unit tests
+commit 2: wire up the API endpoint + integration test
+commit 3: refund integration — design problem discovered here
+
+> The refund integration approach is wrong. Keep everything through
+> commit 2 and redo only step 3.
+```
+
+With a return point at every step, the cost of a wrong turn shrinks to "that one step." Where chapter 2's reset command returns the environment to a known state, checkpoint commits return the code to one — the principle is the same: attempts get bolder as failure gets cheaper. And when each commit message states the intent of its step, reviewers can read the PR commit by commit, so checkpoints double as reviewable history. If cleanup is needed before merge, squash then — checkpoints are a safety device during the work, not the final shape of the history.
+
 ### Example: writing issues Claude can pick up as-is
 
 For "handle issue #123" to work as a request, the issue itself has to be a good request. An issue that carries reproduction steps, expected behavior, and completion criteria becomes a work order that can be executed as-is, without a conversation to fill in the gaps.
