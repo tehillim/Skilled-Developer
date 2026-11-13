@@ -140,6 +140,23 @@ and let a separate relay forward them to the queue.
 
 With this file in `docs/adr/`, Claude follows the outbox pattern instead of suggesting "just publish straight to the queue — it's simpler", and can flag code that violates the decision.
 
+### Example: write down the direction of an in-progress migration
+
+While a codebase is mid-transition, two patterns for the same job coexist. With nothing written down, Claude learns whichever one appears more often — usually the legacy one — as "how this team does it", and the migration takes a step backward. Record which pattern is the past, which is the target, and what to do with code you touch along the way.
+
+```markdown
+## Migrations in progress
+
+- REST → GraphQL (started 2025-01)
+  - New read features go in `src/graphql/` as resolvers. No new REST controllers
+  - Existing REST endpoints: bug fixes only; new capabilities go to GraphQL
+- Class components → function components
+  - Converting files you touch anyway is welcome
+  - But no large conversion-only PRs (they become unreviewable)
+```
+
+During a migration, "the pattern you find by searching" and "the pattern to follow" are different things. "Follow the existing code" — advice that usually works well — becomes, for this period only, an instruction to multiply the legacy pattern, so the signpost needs to be more explicit than almost any other rule. And when the transition is done, delete the section — rules for finished migrations are the first candidates for the "CLAUDE.md diet" in section 6.
+
 ### Example: per-directory CLAUDE.md files in a monorepo
 
 In a monorepo with many packages, cramming every rule into one root CLAUDE.md makes the document long while the rules needed for any given package get harder to find. CLAUDE.md files can also live in subdirectories, and Claude consults them when working on files in that directory.
